@@ -1,81 +1,81 @@
-.player-info-panel {
-    width: 150px; /* Adjust width as needed */
-    padding: 15px;
-    border: 2px solid #4a2d1b; /* Match board border */
-    border-radius: 5px;
-    background-color: #c8a078; /* Match board inner background */
-    color: #333;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    box-sizing: border-box;
-    transition: box-shadow 0.3s ease, background-color 0.3s ease;
-    height: fit-content; /* Take only necessary height */
-}
+    .player-info-panel {
+        width: 150px; /* Adjust width as needed */
+        padding: 15px;
+        border: 2px solid #4a2d1b; /* Match board border */
+        border-radius: 5px;
+        background-color: #c8a078; /* Match board inner background */
+        color: #333;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        box-sizing: border-box;
+        transition: box-shadow 0.3s ease, background-color 0.3s ease;
+        height: fit-content; /* Take only necessary height */
+    }
 
-    .player-info-panel.placeholder {
-        color: #777;
-        background-color: #eee;
-        border-color: #ccc;
+        .player-info-panel.placeholder {
+            color: #777;
+            background-color: #eee;
+            border-color: #ccc;
+            justify-content: center;
+            min-height: 100px; /* Give placeholder some size */
+        }
+
+        .player-info-panel.active-turn {
+            box-shadow: 0 0 15px 5px gold;
+            background-color: #f0e68c; /* Khaki color for active turn */
+            border-color: gold;
+        }
+
+    .player-name {
+        font-size: 1.1em;
+        font-weight: bold;
+    }
+
+    .player-color-indicator {
+        font-size: 0.9em;
+        display: flex;
+        align-items: center;
         justify-content: center;
-        min-height: 100px; /* Give placeholder some size */
+        gap: 5px;
     }
 
-    .player-info-panel.active-turn {
-        box-shadow: 0 0 15px 5px gold;
-        background-color: #f0e68c; /* Khaki color for active turn */
-        border-color: gold;
+    .color-swatch {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        border: 1px solid #555;
     }
 
-.player-name {
-    font-size: 1.1em;
-    font-weight: bold;
-}
+        .color-swatch.white {
+            background-color: #ffffff;
+        }
 
-.player-color-indicator {
-    font-size: 0.9em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-}
+        .color-swatch.black {
+            background-color: #333333;
+        }
 
-.color-swatch {
-    display: inline-block;
-    width: 15px;
-    height: 15px;
-    border-radius: 50%;
-    border: 1px solid #555;
-}
-
-    .color-swatch.white {
-        background-color: #ffffff;
+    .turn-indicator {
+        font-weight: bold;
+        color: #a00; /* Dark red or similar */
+        margin-top: 5px;
+        padding: 3px;
+        background-color: rgba(255, 255, 0, 0.3);
+        border-radius: 3px;
     }
 
-    .color-swatch.black {
-        background-color: #333333;
+    .player-info-panel.client-player {
+        /* Slightly different border maybe? */
+        /* border-style: dashed; */
     }
 
-.turn-indicator {
-    font-weight: bold;
-    color: #a00; /* Dark red or similar */
-    margin-top: 5px;
-    padding: 3px;
-    background-color: rgba(255, 255, 0, 0.3);
-    border-radius: 3px;
-}
+    /* Positioning within the layout */
+    .player-info-panel.player-1-panel { /* White player */
+        order: 4; /* Place after bear-off area 1 */
+    }
 
-.player-info-panel.client-player {
-    /* Slightly different border maybe? */
-    /* border-style: dashed; */
-}
-
-/* Positioning within the layout */
-.player-info-panel.player-1-panel { /* White player */
-    order: 4; /* Place after bear-off area 1 */
-}
-
-.player-info-panel.player-2-panel { /* Black player */
-    order: 0; /* Place before bear-off area 2 */
-}
+    .player-info-panel.player-2-panel { /* Black player */
+        order: 0; /* Place before bear-off area 2 */
+    }

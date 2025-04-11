@@ -1,113 +1,175 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // src/components/GameContainer.tsx
-import React, { useState, useEffect, useCallback } from 'react'; // Add useCallback
+import React, { useState, useEffect, useCallback } from 'react';
 import { GameState } from '../models/GameState';
 import { MoveData } from '../models/MoveData';
 import { PlayerColor, PlayerId, GamePhase } from '../models/enums';
 import GameBoard from './GameBoard';
 import PlayerInfoPanel from './PlayerInfoPanel';
-// import './GameContainer.css'; // Create or add styles here
+// import './GameContainer.css';
 
 interface GameContainerProps {
     gameState: GameState;
     currentPlayerId: PlayerId | null;
     onRollDice: () => void;
     onMakeMove: (move: MoveData) => void;
-    // Add a prop to receive notification triggers from App
     triggerNotification: (message: string, type?: 'error' | 'info' | 'success' | 'warning') => void;
 }
-// Define notification type
-interface Notification {
-    message: string;
-    type: 'error' | 'info' | 'success' | 'warning';
-}
-
-
 
 const GameContainer: React.FC<GameContainerProps> = ({
     gameState,
     currentPlayerId,
     onRollDice,
     onMakeMove,
-    triggerNotification // Receive the function from App
+    triggerNotification
 }) => {
-    // ... existing state (selectedLocation, potentialMoveTargets) ...
-    const [selectedLocation, setSelectedLocation] = useState<{ type: 'point' | 'bar', index: number } | null>(null);
+    const [selectedLocation, setSelectedLocation] = useState<{
+        type: 'point' | 'bar';
+        index: number;
+    } | null>(null);
     const [potentialMoveTargets, setPotentialMoveTargets] = useState<number[]>([]);
-    const [notification, setNotification] = useState<Notification | null>(null); // State for notification
 
-
-    // ... existing calculated variables (isMyTurn, myColor, canRoll) ...
     const isMyTurn = gameState.currentPlayerId === currentPlayerId;
-    const myColor = currentPlayerId === PlayerId.Player1 ? PlayerColor.White : PlayerColor.Black;
-    const canRoll = isMyTurn && gameState.phase === GamePhase.PlayerTurn && (gameState.remainingMoves === null || gameState.remainingMoves?.length === 0);
+    const myColor = currentPlayerId === PlayerId.Player1
+        ? PlayerColor.White
+        : PlayerColor.Black;
 
+    const canRoll = isMyTurn
+        && gameState.phase === GamePhase.PlayerTurn
+        && (!gameState.remainingMoves || gameState.remainingMoves.length === 0);
 
-    // Effect to clear notification after a delay
+    const calculatePotentialTargets = useCallback((startPointIndex: number): number[] => {
+        if (!gameState.remainingMoves) return [];
+
+        const possibleMoves: number[] = [];
+        const playerDirection = myColor === PlayerColor.White ? 1 : -1;
+
+        gameState.remainingMoves.forEach((die: number) => {
+            const targetIndex = startPointIndex + (die * playerDirection);
+
+            if (myColor === PlayerColor.White && targetIndex > 24) {
+                possibleMoves.push(25);
+                return;
+            }
+            if (myColor === PlayerColor.Black && targetIndex < 1) {
+                possibleMoves.push(0);
+                return;
+            }
+
+            if (targetIndex >= 1 && targetIndex <= 24) {
+                const targetPoint = gameState.board[targetIndex - 1];
+                if (targetPoint.checkers.length > 1 &&
+                    targetPoint.checkers[0].color !== myColor) return;
+
+                possibleMoves.push(targetIndex);
+            }
+        });
+
+        return possibleMoves;
+    }, [gameState, myColor]);
+
     useEffect(() => {
-        if (notification) {
-            const timer = setTimeout(() => {
-                setNotification(null);
-            }, 4000); // Display for 4 seconds
-
-            return () => clearTimeout(timer); // Cleanup timer on unmount or if notification changes
+        if (!selectedLocation) {
+            setPotentialMoveTargets([]);
+            return;
         }
-    }, [notification]);
 
+        if (selectedLocation.type === 'point') {
+            const startPoint = gameState.board[selectedLocation.index - 1];
+            if (startPoint.checkers.length === 0 || startPoint.checkers[0].color !== myColor) {
+                setSelectedLocation(null);
+                return;
+            }
+            setPotentialMoveTargets(calculatePotentialTargets(selectedLocation.index));
+        }
 
-    // --- Make triggerNotification accessible within GameContainer if needed ---
-    // This wrapper allows GameContainer itself to show notifications,
-    // while App.tsx uses the passed prop to trigger them from SignalR events.
-    const showNotification = useCallback((message: string, type: Notification['type'] = 'info') => {
-        setNotification({ message, type });
-    }, []);
+        if (selectedLocation.type === 'bar') {
+            const barCheckers = gameState.bar[currentPlayerId!];
+            if (!barCheckers || barCheckers.length === 0) {
+                setSelectedLocation(null);
+                return;
+            }
 
+            const entryPoint = myColor === PlayerColor.White
+                ? (die: number) => die
+                : (die: number) => 25 - die;
 
-    // --- Expose showNotification via triggerNotification prop ---
-    useEffect(() => {
-        // Register the local showNotification function with the one passed from App
-        // This is a way to let App call the state setter inside GameContainer
-        // Note: This pattern can be complex; Context API or Zustand might be cleaner for cross-component communication.
-        // For now, this demonstrates the idea. A simpler approach might be to lift notification state to App.tsx.
-        // Let's simplify: We'll lift the notification state to App.tsx instead.
-        // Remove triggerNotification prop and local state/effect here.
-    }, []); // Remove this effect
+            setPotentialMoveTargets(gameState.remainingMoves!.map(entryPoint));
+        }
+    }, [selectedLocation, gameState, calculatePotentialTargets, myColor, currentPlayerId]);
 
-
-    // ... existing useEffect for potential moves calculation ...
-    useEffect(() => { /* ... */ }, [/* ... dependencies ... */]);
-
-    // ... existing handlers (handlePointClick, handleBarClick, handleBearOffClick) ...
-    // Modify handlers to potentially show local feedback if needed (optional)
     const handlePointClick = (pointIndex: number) => {
-        // ... existing logic ...
-        // Example: Maybe add a notification if user clicks opponent piece?
-        // if (clickedOpponentPiece) {
-        //     showNotification("Cannot select opponent's checker.", 'warning');
-        // }
+        if (!isMyTurn || !gameState.remainingMoves) return;
+
+        const point = gameState.board[pointIndex - 1];
+
+        if (point.checkers.length > 0 && point.checkers[0].color === myColor) {
+            setSelectedLocation({ type: 'point', index: pointIndex });
+        } else if (potentialMoveTargets.includes(pointIndex)) {
+            const move: MoveData = {
+                startPointIndex: selectedLocation!.type === 'bar' ? 0 : selectedLocation!.index,
+                endPointIndex: pointIndex
+            };
+
+            onMakeMove(move);
+            setSelectedLocation(null);
+        }
     };
-    const handleBarClick = (playerId: PlayerId) => { /* ... */ };
-    const handleBearOffClick = (targetPlayerId: PlayerId) => { /* ... */ };
 
+    const handleBarClick = (playerId: PlayerId) => {
+        if (playerId !== currentPlayerId || !gameState.bar[currentPlayerId!]?.length) return;
 
-    // --- Render ---
+        setSelectedLocation({ type: 'bar', index: playerId });
+
+        const entryPoint = myColor === PlayerColor.White
+            ? (die: number) => die
+            : (die: number) => 25 - die;
+
+        setPotentialMoveTargets(gameState.remainingMoves!.map(entryPoint));
+    };
+
     return (
         <div className="game-container">
-
-            {/* Notification Area */}
-            {/* Removed - will be handled in App.tsx */}
-
-            {/* Main Game Area */}
-            <div className="game-board-area">
-                {/* ... Player Panels, GameBoard etc. ... */}
+            <div className="player-panels">
+                <PlayerInfoPanel
+                    player={gameState.players[PlayerId.Player2]}
+                    isCurrentTurn={gameState.currentPlayerId === PlayerId.Player2}
+                    isClientPlayer={currentPlayerId === PlayerId.Player2}
+                />
+                <PlayerInfoPanel
+                    player={gameState.players[PlayerId.Player1]}
+                    isCurrentTurn={gameState.currentPlayerId === PlayerId.Player1}
+                    isClientPlayer={currentPlayerId === PlayerId.Player1}
+                />
             </div>
 
-            {/* Controls Section */}
+            <GameBoard
+                gameState={gameState}
+                onPointClick={handlePointClick}
+                onBarClick={handleBarClick}
+                selectedCheckerLocation={selectedLocation}
+                validMoveTargets={potentialMoveTargets}
+            />
+
             <div className="controls">
-                {/* ... Status, Dice, Roll Button ... */}
+                <button
+                    onClick={onRollDice}
+                    disabled={!canRoll}
+                    className="roll-dice-button"
+                >
+                    Roll Dice
+                </button>
+
+                <div className="dice-display">
+                    {gameState.currentDiceRoll?.map((die, index) => (
+                        <div key={index} className="die">
+                            {die}
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );
 };
-// ... helper functions ...
+
 export default GameContainer;
