@@ -1,0 +1,23 @@
+/* src/components/GameBoard.css */
+
+.game-board-area {
+    display: flex;
+    justify-content: center; /* Center the whole block */
+    align-items: center; /* Vertically center items relative to each other */
+    padding: 20px;
+    background-color: #5a3d2b;
+    border-radius: 5px;
+    gap: 15px; /* Space between elements */
+    width: fit-content; /* Adjust width based on content */
+    margin: 0 auto; /* Center the area on the page */
+}
+
+/* Keep existing .game-board styles (order: 2) */
+.game-board {
+    /* ... existing grid styles ... */
+    order: 2;
+}
+
+/* Keep existing .bear-off-area styles (order: 1 and 3) */
+
+/* Styles for PlayerInfoPanel positioning are in PlayerInfoPanel.css using order */

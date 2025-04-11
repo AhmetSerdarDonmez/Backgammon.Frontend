@@ -1,0 +1,61 @@
+.bear-off-area {
+    width: 60px; /* Adjust width */
+    height: 520px; /* Match board height + padding */
+    background-color: #6a4d3b; /* Slightly different wood */
+    border: 3px solid #4a2d1b;
+    border-radius: 4px;
+    padding: 10px 5px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+}
+
+.bear-off-label {
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.bear-off-count {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.bear-off-visual {
+    flex-grow: 1; /* Take remaining space */
+    display: flex;
+    flex-direction: column; /* Stack visuals vertically */
+    align-items: center;
+    width: 100%;
+}
+
+.bear-off-checker {
+    width: 35px; /* Smaller than board checkers */
+    height: 15px; /* Flattened representation */
+    border-radius: 3px;
+    margin-bottom: 5px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+    .bear-off-checker.white {
+        background-color: #ffffff;
+        border: 1px solid #aaa;
+    }
+
+    .bear-off-checker.black {
+        background-color: #333333;
+        border: 1px solid #000;
+    }
+
+/* Position BearOffAreas next to the board using GameBoardArea's flex */
+.bear-off-area.player-1 { /* White - typically right side */
+    order: 3; /* Place after board+bar */
+}
+
+.bear-off-area.player-2 { /* Black - typically left side */
+    order: 1; /* Place before board+bar */
+}

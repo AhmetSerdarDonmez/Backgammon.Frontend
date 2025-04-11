@@ -1,0 +1,47 @@
+.checker {
+    width: 40px; /* Adjust size as needed */
+    height: 40px;
+    border-radius: 50%; /* Make it round */
+    box-sizing: border-box; /* Include border in size */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer; /* Indicate it's clickable (later) */
+    margin-bottom: -10px; /* Allow checkers to overlap slightly vertically */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Basic shadow */
+    transition: transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out; /* Smooth transition for selection */
+}
+
+    .checker.white {
+        background-color: #ffffff;
+        border: 2px solid #b0b0b0; /* Slightly darker border for white */
+    }
+
+    .checker.black {
+        background-color: #333333;
+        border: 2px solid #000000;
+    }
+
+/* Optional inner element for more styling */
+.checker-inner {
+    width: 80%;
+    height: 80%;
+    border-radius: 50%;
+    /* Example: Add a subtle gradient or inner shadow */
+    /* background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 60%); */
+}
+
+.checker.black .checker-inner {
+    /* Different effect for black checkers */
+}
+
+.checker.selected {
+    box-shadow: 0 0 10px 3px gold; /* Highlight selected checker */
+    transform: scale(1.1); /* Slightly enlarge selected checker */
+}
+
+
+/* Adjust margin for the last checker in a stack to avoid extra space */
+.checker:last-child {
+    margin-bottom: 0;
+}

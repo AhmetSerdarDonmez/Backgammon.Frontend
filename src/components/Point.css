@@ -1,0 +1,143 @@
+.point {
+    height: 250px; /* Adjust height as needed */
+    position: relative;
+    display: flex;
+    justify-content: center;
+    cursor: pointer; /* Indicate clickable */
+    box-sizing: border-box;
+    overflow: hidden; /* Hide overflowing checkers */
+    transition: background-color 0.2s; /* Smooth transition for highlighting */
+}
+
+/* Triangle shape using borders */
+.point-triangle {
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent; /* Half of point base width */
+    border-right: 25px solid transparent; /* Half of point base width */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.point.top .point-triangle {
+    border-top: 250px solid; /* Point height */
+    top: 0;
+}
+
+.point.bottom .point-triangle {
+    border-bottom: 250px solid; /* Point height */
+    bottom: 0;
+}
+
+/* Point background colors */
+.point.point-odd.top .point-triangle {
+    border-top-color: #e0c19a;
+}
+/* Light wood color */
+.point.point-even.top .point-triangle {
+    border-top-color: #a07c5a;
+}
+/* Darker wood color */
+.point.point-odd.bottom .point-triangle {
+    border-bottom-color: #e0c19a;
+}
+
+.point.point-even.bottom .point-triangle {
+    border-bottom-color: #a07c5a;
+}
+
+/* Hover effect */
+.point:hover {
+    background-color: rgba(255, 255, 0, 0.1); /* Subtle yellow highlight */
+}
+
+/* Valid move target highlight */
+.point.valid-move {
+    background-color: rgba(144, 238, 144, 0.3); /* Light green highlight */
+}
+
+    .point.valid-move:hover {
+        background-color: rgba(144, 238, 144, 0.5);
+    }
+
+
+/* Checker stacking */
+.checker-stack {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px; /* Match checker width */
+    display: flex;
+    align-items: center; /* Center checkers horizontally */
+    z-index: 1; /* Ensure checkers are above triangle */
+}
+
+    .checker-stack.stack-up { /* Bottom row points */
+        flex-direction: column-reverse; /* Stack from bottom up */
+        bottom: 5px; /* Small padding from edge */
+    }
+
+    .checker-stack.stack-down { /* Top row points */
+        flex-direction: column; /* Stack from top down */
+        top: 5px; /* Small padding from edge */
+    }
+
+.hidden-checker-count {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 0.8em;
+    padding: 2px 5px;
+    border-radius: 3px;
+    text-align: center;
+    position: absolute; /* Position relative to the stack */
+    width: 100%; /* Take full width of the stack area */
+    z-index: 2; /* Above checkers */
+}
+
+.checker-stack.stack-up .hidden-checker-count {
+    top: -20px; /* Position above the visible stack */
+}
+
+.checker-stack.stack-down .hidden-checker-count {
+    bottom: -20px; /* Position below the visible stack */
+}
+
+
+/* Optional Point Numbers */
+.point-number {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 0.8em;
+    z-index: 0; /* Behind checkers */
+}
+
+.point.top .point-number {
+    bottom: 5px;
+}
+
+.point.bottom .point-number {
+    top: 5px;
+}
+
+/* src/components/Point.css */
+/* ... existing styles ... */
+
+.point.selected-point {
+    /* Style for when the point itself (as a start location) is selected */
+    /* Example: Add an outline or different background */
+    outline: 3px solid gold;
+    outline-offset: -3px;
+    background-color: rgba(255, 215, 0, 0.1); /* Slight gold tint */
+}
+
+/* Make sure .valid-move style is distinct */
+.point.valid-move {
+    background-color: rgba(144, 238, 144, 0.3); /* Light green highlight */
+}
+
+    .point.valid-move:hover {
+        background-color: rgba(144, 238, 144, 0.5);
+    }

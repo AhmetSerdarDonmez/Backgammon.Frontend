@@ -1,0 +1,45 @@
+/* Keep existing styles from Vite template */
+#root {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+}
+
+/* ... other styles ... */
+
+.App-header {
+    background-color: #282c34;
+    padding: 20px;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.error-message {
+    color: #dc3545; /* Red color for errors */
+    background-color: #f8d7da; /* Light pink background */
+    border: 1px solid #f5c6cb; /* Reddish border */
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.game-container {
+    margin-top: 20px;
+    border: 1px solid #ccc;
+    padding: 15px;
+}
+
+.controls {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #eee;
+}
+
+button {
+    margin: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+/* Add styles for board, points, checkers later */

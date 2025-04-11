@@ -1,0 +1,65 @@
+.bar-area-component {
+    grid-column: 7; /* Placed in the grid layout defined in GameBoard.css */
+    grid-row: 1 / span 2;
+    background-color: #7a5d3b;
+    border-left: 3px solid #4a2d1b;
+    border-right: 3px solid #4a2d1b;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Pushes stacks to top/bottom */
+    align-items: center;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+.bar-divider {
+    color: white;
+    font-weight: bold;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    margin: auto 0; /* Centers the BAR text vertically */
+    flex-grow: 1; /* Takes up space between stacks */
+    display: flex;
+    align-items: center; /* Center text within its space */
+}
+
+.bar-stack {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0 5px; /* Small horizontal padding */
+    box-sizing: border-box;
+    cursor: pointer;
+    min-height: 50px; /* Ensure clickable area even when empty */
+}
+
+    .bar-stack.player1 { /* White - bottom */
+        flex-direction: column-reverse; /* Stack upwards */
+    }
+
+    .bar-stack.player2 { /* Black - top */
+        flex-direction: column; /* Stack downwards */
+    }
+
+    /* Reuse .checker styles defined earlier */
+    .bar-stack .checker {
+        /* Adjust margins if needed for bar stacking */
+        margin-bottom: -15px; /* Overlap more tightly */
+    }
+
+    .bar-stack.player1 .checker:first-child {
+        margin-bottom: 0;
+    }
+    /* Reset last visual item */
+    .bar-stack.player2 .checker:first-child {
+        margin-top: 0;
+        margin-bottom: -15px;
+    }
+
+
+    /* Reuse hidden count style - adjust positioning if needed */
+    .bar-stack .hidden-checker-count {
+        position: relative; /* Position normally within the flex flow */
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }

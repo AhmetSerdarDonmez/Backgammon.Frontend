@@ -1,0 +1,35 @@
+.notification-display {
+    position: fixed; /* Or absolute relative to main container */
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    font-size: 0.9em;
+    z-index: 1000; /* Ensure it's on top */
+    min-width: 250px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    opacity: 1;
+    transition: opacity 0.5s ease-out; /* Fade out could be added */
+}
+
+    .notification-display.info {
+        background-color: #17a2b8; /* Teal/Info Blue */
+    }
+
+    .notification-display.success {
+        background-color: #28a745; /* Green */
+    }
+
+    .notification-display.warning {
+        background-color: #ffc107; /* Yellow */
+        color: #333; /* Darker text for yellow */
+    }
+
+    .notification-display.error {
+        background-color: #dc3545; /* Red */
+    }
+
+/* Add animation for appearing/disappearing if desired */
