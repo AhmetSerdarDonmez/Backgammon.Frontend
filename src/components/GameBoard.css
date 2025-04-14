@@ -1,23 +1,56 @@
 /* src/components/GameBoard.css */
 
+/* Styles for the flex container holding panels, board, etc. */
 .game-board-area {
     display: flex;
     justify-content: center; /* Center the whole block */
     align-items: center; /* Vertically center items relative to each other */
     padding: 20px;
-    background-color: #5a3d2b;
+    background-color: #5a3d2b; /* Outer background */
     border-radius: 5px;
-    gap: 15px; /* Space between elements */
+    gap: 15px; /* Space between BearOff areas and Board */
     width: fit-content; /* Adjust width based on content */
     margin: 0 auto; /* Center the area on the page */
 }
 
-/* Keep existing .game-board styles (order: 2) */
+/* Defines the main board grid container */
 .game-board {
-    /* ... existing grid styles ... */
-    order: 2;
+    display: grid;
+    /* 13 columns: 6 points + 1 bar + 6 points */
+    /* Use fractional units (fr) for points, fixed width for bar */
+    grid-template-columns: repeat(6, 1fr) 50px repeat(6, 1fr);
+    /* 2 rows: Define height for points */
+    grid-template-rows: 250px 250px;
+    gap: 5px; /* Optional gap between points */
+    width: 750px; /* Adjust total width as needed (6*point_width + bar_width + gaps) */
+    background-color: #c8a078; /* Inner board area color */
+    border: 10px solid #4a2d1b; /* Thick wooden border */
+    padding: 10px;
+    position: relative; /* Needed if elements inside use absolute positioning */
+    order: 2; /* Position board between bear-off areas in the flex layout */
+    box-sizing: border-box;
 }
 
-/* Keep existing .bear-off-area styles (order: 1 and 3) */
+/* Styles for the Bar component's position WITHIN the grid */
+/* This assumes Bar.css sets display:flex etc. for its internal content */
+/* We only position the Bar component itself here */
+.bar-area-component { /* Targeting the root div of the Bar component */
+    grid-column: 7 / 8; /* Span the 7th column */
+    grid-row: 1 / 3; /* Span both rows (1 to 3 means rows 1 and 2) */
+    /* Background, borders, etc., should be in Bar.css */
+    /* Ensure Bar.css does NOT set grid-column/row */
+}
 
-/* Styles for PlayerInfoPanel positioning are in PlayerInfoPanel.css using order */
+
+/* ------------------------------------------------------------------ */
+/* !!! IMPORTANT: DELETE ALL OLD RULES BELOW THIS LINE !!!            */
+/* Remove any previous rules that targeted .point or .point-row       */
+/* using :nth-child or similar to set grid-column or grid-row.        */
+/* Point positioning is now handled by inline styles in GameBoard.tsx */
+/* ------------------------------------------------------------------ */
+
+/* Example of rules to DELETE if they exist:
+   .point-row.top-row > .point:nth-child(1) { grid-column: 6; grid-row: 1; }
+   .point-row.bottom-row > .point:nth-child(6) { grid-column: 13; grid-row: 2; }
+   etc...
+*/

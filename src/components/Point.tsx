@@ -3,7 +3,7 @@ import React from 'react';
 import { BoardPoint as BoardPointModel } from '../models/BoardPoint'; // Ensure this import is correct
 import Checker from './Checker'; // Ensure this import is correct
 import { Checker as CheckerModel } from '../models/Checker'; // Import Checker type for map
-import './Point.css';
+import './Point.css'; // Ensure CSS is imported
 
 interface PointProps {
     pointData: BoardPointModel;
@@ -11,16 +11,26 @@ interface PointProps {
     onClick: (pointIndex: number) => void;
     isValidMoveTarget: boolean;
     isSelected: boolean;
+    style?: React.CSSProperties; // Style prop MUST be in the interface
 }
 
-const Point: React.FC<PointProps> = ({ pointData, isTopRow, onClick, isValidMoveTarget, isSelected }) => {
-    // --- ADD THESE DEFINITIONS BACK ---
+const Point: React.FC<PointProps> = ({
+    pointData,
+    isTopRow,
+    onClick,
+    isValidMoveTarget,
+    isSelected,
+    style // Destructure the style prop
+}) => {
     const pointIndex = pointData.pointIndex;
     const checkers = pointData.checkers;
 
-    // Define backgroundColorClass
+    // Define backgroundColorClass based on index
     const isOddPoint = pointIndex % 2 !== 0;
-    const backgroundColorClass = isOddPoint ? 'point-odd' : 'point-even'; // Or adjust logic as needed
+    // Use consistent logic for coloring based on standard boards
+    // Example: Outer boards often have colors swapped compared to home boards relative to odd/even
+    // This example assumes simple odd/even coloring for now. Adjust if needed.
+    const backgroundColorClass = isOddPoint ? 'point-odd' : 'point-even';
 
     // Define displayedCheckers and hidden count
     const maxVisibleCheckers = 6; // Or your preferred limit
@@ -31,14 +41,15 @@ const Point: React.FC<PointProps> = ({ pointData, isTopRow, onClick, isValidMove
     const handleClick = () => {
         onClick(pointIndex); // Call the onClick prop passed from parent
     };
-    // --- END OF ADDED DEFINITIONS ---
 
     const pointClasses = `point ${isTopRow ? 'top' : 'bottom'} ${backgroundColorClass} ${isValidMoveTarget ? 'valid-move' : ''} ${isSelected ? 'selected-point' : ''}`;
 
-    const isCheckerSelected = isSelected; // Top checker selected if point is selected
+    // Determine if the top checker should be visually selected
+    const isTopCheckerSelected = isSelected && displayedCheckers.length > 0;
 
     return (
-        <div className={pointClasses} onClick={handleClick}> {/* Use defined handleClick */}
+        // Apply the passed style prop to this root div
+        <div className={pointClasses} onClick={handleClick} style={style}>
             <div className="point-triangle"></div>
             <div className={`checker-stack ${isTopRow ? 'stack-down' : 'stack-up'}`}>
                 {/* Add explicit types for map parameters */}
@@ -46,16 +57,18 @@ const Point: React.FC<PointProps> = ({ pointData, isTopRow, onClick, isValidMove
                     <Checker
                         key={checker.id}
                         color={checker.color}
-                        isSelected={isCheckerSelected && index === displayedCheckers.length - 1}
+                        // Highlight only the last checker in the displayed stack if selected
+                        isSelected={isTopCheckerSelected && index === displayedCheckers.length - 1}
                     />
                 ))}
                 {hiddenCheckersCount > 0 && (
                     <div className="hidden-checker-count">+{hiddenCheckersCount}</div>
                 )}
             </div>
+            {/* Optional: Point Number */}
             {/* <div className="point-number">{pointIndex}</div> */}
         </div>
     );
 };
 
-export default Point; // Ensure default export is present
+export default Point;

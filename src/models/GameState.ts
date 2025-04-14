@@ -7,6 +7,7 @@ import { Checker } from './Checker';
 export interface GameState {
     gameId: string;
     players: { [key in PlayerId]?: Player }; // Use a dictionary/map keyed by PlayerId
+    color: { [key in PlayerColor]?: Player };
     board: BoardPoint[]; // Array of 24 points (index 0 = point 1, index 23 = point 24)
     bar: { [key in PlayerId]?: Checker[] }; // Checkers on the bar for each player
     borneOff: { [key in PlayerId]?: Checker[] }; // Checkers borne off for each player
@@ -16,12 +17,14 @@ export interface GameState {
     phase: GamePhase;
     winnerId: PlayerId | null;
     initialRoll: number[] | null; // [P1_die, P2_die]
+    
 }
 
 // Helper function to create a default/initial state
 export const createInitialGameState = (): GameState => ({
     gameId: '',
     players: {},
+    color: {},
     board: Array.from({ length: 24 }, (_, i) => ({ pointIndex: i + 1, checkers: [] })), // Initialize empty board
     bar: { [PlayerId.Player1]: [], [PlayerId.Player2]: [] },
     borneOff: { [PlayerId.Player1]: [], [PlayerId.Player2]: [] },

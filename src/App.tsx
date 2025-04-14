@@ -55,7 +55,10 @@ function App() {
                 });
 
                 connection.on("AssignPlayerRole", (id: PlayerId, colorStr: string) => {
-                    setPlayerInfo({ id, color: colorStr as PlayerColor });
+                    const color = colorStr === "White" ? PlayerColor.White : PlayerColor.Black;
+
+                    setPlayerInfo({ id, color });
+                
                 });
 
                 connection.on("WaitingForOpponent", () => {
@@ -139,7 +142,8 @@ function App() {
                         currentPlayerId={playerInfo.id}
                         onRollDice={handleRollDice}
                         onMakeMove={handleMakeMove}
-                        triggerNotification={showNotification}
+                        currentPlayerColor={playerInfo.color}
+//                        triggerNotification={showNotification}
                     />
                 ) : (
                     <p>Waiting for players to connect...</p>
