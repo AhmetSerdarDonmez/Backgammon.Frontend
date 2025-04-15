@@ -19,11 +19,11 @@ const BearOffArea: React.FC<BearOffAreaProps> = ({ playerCheckers, playerId, pla
             {/* Optional: Visualize some checkers */}
             <div className="bear-off-visual">
                 {/* Show a few representative checkers */}
-                {count > 0 && <div className={`bear-off-checker ${playerColor.toLowerCase()}`}></div>}
-                {count > 3 && <div className={`bear-off-checker ${playerColor.toLowerCase()}`}></div>}
-                {count > 6 && <div className={`bear-off-checker ${playerColor.toLowerCase()}`}></div>}
-                {count > 9 && <div className={`bear-off-checker ${playerColor.toLowerCase()}`}></div>}
-                {count > 12 && <div className={`bear-off-checker ${playerColor.toLowerCase()}`}></div>}
+                {count > 0 && <div className={`bear-off-checker ${playerColor}`}></div>}
+                {count > 3 && <div className={`bear-off-checker ${playerColor}`}></div>}
+                {count > 6 && <div className={`bear-off-checker ${playerColor}`}></div>}
+                {count > 9 && <div className={`bear-off-checker ${playerColor}`}></div>}
+                {count > 12 && <div className={`bear-off-checker ${playerColor}`}></div>}
             </div>
         </div>
     );

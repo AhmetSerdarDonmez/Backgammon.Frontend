@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+﻿/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect, useCallback } from 'react';
 import { GameState } from '../models/GameState';
 import { MoveData } from '../models/MoveData';
@@ -111,68 +111,92 @@ const GameContainer: React.FC<GameContainerProps> = ({
 
     // --- Helper: Calculate potential targets ---
     // Added gameState.players and canBearOffCallback to dependencies
-    const calculatePotentialTargets = useCallback((startLocation: { type: 'point' | 'bar', index: number }): number[] => {
-        console.log(`--- Calculating potential targets for ${startLocation.type} ${startLocation.index} with dice ${gameState.remainingMoves}`);
-        // Added check for myPlayerData as myColor depends on it
-        if (!gameState.remainingMoves || !currentPlayerId || myColor === null || !myPlayerData || !gameState.board) return [];
+    const calculatePotentialTargets = useCallback(
+        (startLocation: { type: 'point' | 'bar', index: number }): number[] => {
+            console.log(`--- Calculating potential targets for ${startLocation.type} ${startLocation.index} with dice ${gameState.remainingMoves}`);
+            // Added check for myPlayerData as myColor depends on it
+            if (!gameState.remainingMoves || !currentPlayerId || myColor === null || !gameState.board) return [];
 
-        const targets: Set<number> = new Set();
-        const playerDirection = myColor === PlayerColor.White ? 1 : -1;
-        const isBearingOffPossible = canBearOffCallback(); // Use the memoized callback
-        const bearOffTargetVal = myColor === PlayerColor.White ? 25 : 0;
+            const targets: Set<number> = new Set();
+            const playerDirection = myColor === PlayerColor.White ? 1 : -1;
+            const isBearingOffPossible = canBearOffCallback(); // Use the memoized callback
+            const bearOffTargetVal = myColor === PlayerColor.White ? 25 : 0;
+            const opponentId = myColor === PlayerColor.White ? PlayerId.Player2 : PlayerId.Player1;
 
-        gameState.remainingMoves.forEach((die: number) => {
-            let targetIndex = -1;
+            gameState.remainingMoves.forEach((die: number) => {
+                let targetIndex = -1;
 
-            if (startLocation.type === 'bar') {
-                const entryPointIndex = myColor === PlayerColor.White ? die : 25 - die;
-                if (entryPointIndex >= 1 && entryPointIndex <= 24) {
-                    const endPoint = gameState.board?.[entryPointIndex - 1]; // Safer access
-                    const checkersAtEnd = endPoint?.checkers ?? [];
-                    // Safer access to opponentId using gameState.players
-                    const opponentPlayerExists = gameState.players?.[opponentId];
-                    if (!(checkersAtEnd.length >= 2 && opponentPlayerExists && checkersAtEnd[0]?.playerId === opponentId)) {
-                        targets.add(entryPointIndex);
-                    }
-                }
-            } else { // Start location is a point
-                const startPointIndex = startLocation.index;
-                targetIndex = startPointIndex + (die * playerDirection);
+                if (startLocation.type === 'bar') {
+                    const entryPointIndex = myColor === PlayerColor.White ? die : 25 - die;
+                    if (entryPointIndex >= 1 && entryPointIndex <= 24) {
+                        const endPoint = gameState.board[entryPointIndex - 1]; // Remove optional chaining (board exists)
+                        const checkersAtEnd = endPoint.checkers ?? [];
+                        // Correct opponent check: Verify all checkers are opponent's and count ≥2
+                        const isBlockedByOpponent =
+                            checkersAtEnd.length >= 2 &&
+                            checkersAtEnd.every(c => c.playerId === opponentId);
 
-                if (isBearingOffPossible) {
-                    const isOnOrBeyondBearOff = (myColor === PlayerColor.White && targetIndex >= 25) || (myColor === PlayerColor.Black && targetIndex <= 0);
-                    if (isOnOrBeyondBearOff) {
-                        const highestPoint = getHighestOccupiedPointInHomeBoard(gameState, currentPlayerId);
-                        const exactDieNeeded = myColor === PlayerColor.White ? 25 - startPointIndex : startPointIndex;
-                        // Safer access to board point and checkers
-                        const startPointHasCheckers = gameState.board?.[startPointIndex - 1]?.checkers?.some(c => c.playerId === currentPlayerId) ?? false;
-
-                        if (startPointHasCheckers && die === exactDieNeeded) {
-                            targets.add(bearOffTargetVal);
-                        } else if (startPointHasCheckers && die > exactDieNeeded && startPointIndex === highestPoint) {
-                            targets.add(bearOffTargetVal);
+                        if (!isBlockedByOpponent) {
+                            targets.add(entryPointIndex);
                         }
-                        targetIndex = -1;
+                    }
+                } else { // Start location is a point
+                    const startPointIndex = startLocation.index;
+                    targetIndex = startPointIndex + (die * playerDirection);
+                    console.log(`--- Calculating target index: ${startPointIndex} + (${die} * ${playerDirection}) = ${targetIndex}`);
+
+                    if (isBearingOffPossible) {
+                        const isOnOrBeyondBearOff =
+                            (myColor === PlayerColor.White && targetIndex >= 25) ||
+                            (myColor === PlayerColor.Black && targetIndex <= 0);
+
+                        if (isOnOrBeyondBearOff) {
+                            console.log(`--- Bearing off possible. Target index: ${targetIndex} is on or beyond bear off.`);
+                            const highestPoint = getHighestOccupiedPointInHomeBoard(gameState, currentPlayerId);
+                            const exactDieNeeded =
+                                myColor === PlayerColor.White
+                                    ? 25 - startPointIndex
+                                    : startPointIndex;
+
+                            const startPointHasCheckers =
+                                gameState.board[startPointIndex - 1].checkers.some(
+                                    c => c.playerId === currentPlayerId
+                                );
+
+                            if (startPointHasCheckers && die === exactDieNeeded) {
+                                targets.add(bearOffTargetVal);
+                            } else if (
+                                startPointHasCheckers &&
+                                die > exactDieNeeded &&
+                                startPointIndex === highestPoint
+                            ) {
+                                targets.add(bearOffTargetVal);
+                            }
+                            targetIndex = -1;
+                        }
+                    }
+
+                    if (targetIndex >= 1 && targetIndex <= 24) {
+                        const endPoint = gameState.board[targetIndex - 1]; // Remove optional chaining (board exists)
+                        const checkersAtEnd = endPoint.checkers ?? [];
+                        // Correct endpoint validation
+                        const isBlockedByOpponent =
+                            checkersAtEnd.length >= 2 &&
+                            checkersAtEnd.every(c => c.playerId === opponentId);
+
+                        if (!isBlockedByOpponent) {
+                            targets.add(targetIndex);
+                        }
                     }
                 }
+            });
 
-                if (targetIndex >= 1 && targetIndex <= 24) {
-                    const endPoint = gameState.board?.[targetIndex - 1]; // Safer access
-                    const checkersAtEnd = endPoint?.checkers ?? [];
-                    const opponentPlayerExists = gameState.players?.[opponentId];
-                    if (!(checkersAtEnd.length >= 2 && opponentPlayerExists && checkersAtEnd[0]?.playerId === opponentId)) {
-                        targets.add(targetIndex);
-                    }
-                }
-            }
-        });
-
-        const result = Array.from(targets);
-        console.log(`--- Calculated potential targets: [${result.join(', ')}]`);
-        return result;
-
-    }, [gameState, currentPlayerId, myColor, opponentId, canBearOffCallback]); // Updated dependencies
-
+            const result = Array.from(targets);
+            console.log(`--- Calculated potential targets: [${result.join(', ')}]`);
+            return result;
+        },
+        [gameState, currentPlayerId, myColor, canBearOffCallback] // Updated dependencies
+    );
 
     // --- Effect to update potential targets ---
     // Added potentialMoveTargets.length to dependencies
