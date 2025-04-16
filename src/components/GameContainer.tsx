@@ -5,6 +5,7 @@ import { MoveData } from '../models/MoveData';
 import { PlayerColor, PlayerId, GamePhase } from '../models/enums';
 import GameBoard from './GameBoard';
 import PlayerInfoPanel from './PlayerInfoPanel';
+import { Player } from '../models/Player';
 // import './GameContainer.css'; // Optional styles for this container
 
 interface GameContainerProps {
@@ -268,14 +269,14 @@ const GameContainer: React.FC<GameContainerProps> = ({
 
     const handleBarClick = (playerId: PlayerId) => {
         console.log(`>>> handleBarClick: Clicked bar for player ${playerId}. MyTurn=${isMyTurn}. MyId=${currentPlayerId}`);
-        // Check currentPlayerId directly here
+
         if (!isMyTurn || playerId !== currentPlayerId || !gameState.remainingMoves || gameState.remainingMoves.length === 0) {
             if (selectedLocation) setSelectedLocation(null);
             return;
         }
 
-        // Safer access using optional chaining and nullish coalescing
-        const checkersOnBar = gameState.bar?.[currentPlayerId]?.length ?? 0;
+        // Use the enum name as the key (e.g., "Player1" or "Player2")
+        const checkersOnBar = gameState.bar?.[PlayerId[currentPlayerId!]]?.length ?? 0;
         console.log(`>>> handleBarClick: Checkers on bar: ${checkersOnBar}`);
 
         if (checkersOnBar > 0) {

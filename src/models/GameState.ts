@@ -9,9 +9,9 @@ export interface GameState {
     players: { [key in PlayerId]?: Player }; // Use a dictionary/map keyed by PlayerId
     color: { [key in PlayerColor]?: Player };
     board: BoardPoint[]; // Array of 24 points (index 0 = point 1, index 23 = point 24)
-    bar: { [key in PlayerId]?: Checker[] }; // Checkers on the bar for each player
+    bar: { [key: string]: Checker[] }; // Use string keys to match backend's enum names
     borneOff: { [key in PlayerId]?: Checker[] }; // Checkers borne off for each player
-    currentPlayerId: PlayerId | null;
+    currentPlayerId: PlayerId | null;   
     currentDiceRoll: number[] | null; // The actual dice shown, e.g., [6, 4]
     remainingMoves: number[] | null; // Dice numbers left to play, e.g., [6, 4] or [5, 5, 5, 5]
     phase: GamePhase;
