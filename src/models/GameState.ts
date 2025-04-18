@@ -6,7 +6,7 @@ import { Checker } from './Checker';
 
 export interface GameState {
     gameId: string;
-    players: { [key in PlayerId]?: Player }; // Use a dictionary/map keyed by PlayerId
+    players: { [key: string]: Player }; // Allow string keys
     color: { [key in PlayerColor]?: Player };
     board: BoardPoint[]; // Array of 24 points (index 0 = point 1, index 23 = point 24)
     bar: { [key: string]: Checker[] }; // Use string keys to match backend's enum names

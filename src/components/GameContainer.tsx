@@ -42,22 +42,65 @@ const canPotentiallyBearOff = (gameState: GameState, playerId: PlayerId | null, 
 };
 
 
+    const getFurthestCheckerPoint = (
+        gameState: GameState,
+        playerId: PlayerId
+    ): number => {
+        const player = gameState.players[`Player${playerId}`];
+        if (!player || !gameState.board) return -1;
+
+        const isWhite = player.color === PlayerColor.White;
+
+        if (isWhite) {
+            // White home: 19→24; smallest index = largest distance
+            for (let idx = 19; idx <= 24; idx++) {
+                if (gameState.board[idx - 1].checkers.some(c => c.playerId === playerId)) {
+                    return idx;
+                }
+            }
+        } else {
+            // Black home: 1→6; largest index = largest distance
+            for (let idx = 6; idx >= 1; idx--) {
+                if (gameState.board[idx - 1].checkers.some(c => c.playerId === playerId)) {
+                    return idx;
+                }
+            }
+        }
+
+        return -1;
+    };
+
+
+
 
 // Helper function outside component: Get highest point
 // Added explicit null checks for safety
 const getHighestOccupiedPointInHomeBoard = (gameState: GameState, playerId: PlayerId | null): number => {
-    if (playerId === null) return -1; // Added check
-    const player = gameState.players?.[playerId]; // Safer access
-    if (!player) return -1;
+    if (!playerId || !gameState.players) {
+        console.error("Invalid playerId or gameState.players is undefined:", { playerId, players: gameState.players });
+        return -1;
+    }
+
+    console.log(">>> gameState:", gameState);
+
+    const player = gameState.players[`Player${playerId}`];
+    if (!player) {
+        console.error("Player not found for playerId:", playerId, " and player:" , player);
+        return -1;
+    }
+
+    console.log(">>> getHighestOccupiedPointInHomeBoard: player is valid");
     const playerColor = player.color;
+
 
     let highestPoint = -1;
 
     // Ensure board exists before iterating
     if (!gameState.board) return -1;
+    console.log(">>> getHighestOccupiedPointInHomeBoard: gameState.board is valid");
 
     if (playerColor === PlayerColor.White) { // Home 19-24
-        for (let i = 23; i >= 18; i--) {
+        for (let i = 24; i >= 18; i--) {
             if (gameState.board[i]?.checkers?.some(c => c.playerId === playerId)) {
                 highestPoint = i + 1;
                 break;
@@ -71,6 +114,7 @@ const getHighestOccupiedPointInHomeBoard = (gameState: GameState, playerId: Play
             }
         }
     }
+    console.log(">>> getHighestOccupiedPointInHomeBoard: highestPoint found:", highestPoint);
     return highestPoint;
 };
 
@@ -117,7 +161,7 @@ const GameContainer: React.FC<GameContainerProps> = ({
             console.log(`--- Calculating potential targets for ${startLocation.type} ${startLocation.index} with dice ${gameState.remainingMoves}`);
             // Added check for myPlayerData as myColor depends on it
             if (!gameState.remainingMoves || !currentPlayerId || myColor === null || !gameState.board) return [];
-
+                
             const targets: Set<number> = new Set();
             const playerDirection = myColor === PlayerColor.White ? 1 : -1;
             const isBearingOffPossible = canBearOffCallback(); // Use the memoized callback
@@ -199,6 +243,8 @@ const GameContainer: React.FC<GameContainerProps> = ({
         [gameState, currentPlayerId, myColor, canBearOffCallback] // Updated dependencies
     );
 
+
+
     // --- Effect to update potential targets ---
     // Added potentialMoveTargets.length to dependencies
     useEffect(() => {
@@ -221,51 +267,125 @@ const GameContainer: React.FC<GameContainerProps> = ({
     }, [selectedLocation, gameState.remainingMoves, isMyTurn, calculatePotentialTargets, myColor, potentialMoveTargets]); // Include potentialMoveTargets state itself
 
 
+
+
+
     // --- Interaction Handlers ---
-    const handlePointClick = (pointIndex: number) => {
-        console.log(`>>> handlePointClick: Clicked point ${pointIndex}. MyTurn=${isMyTurn}. Selected=${JSON.stringify(selectedLocation)}`);
-        // Added null check for currentPlayerId
-        if (!isMyTurn || !gameState.remainingMoves || gameState.remainingMoves.length === 0 || currentPlayerId === null) {
-            if (selectedLocation) setSelectedLocation(null);
-            return;
-        }
+const handlePointClick = (pointIndex: number) => {
+    console.log(`>>> handlePointClick: Clicked point ${pointIndex}. MyTurn=${isMyTurn}. Selected=${JSON.stringify(selectedLocation)}`);
 
-        // Safer access using optional chaining and nullish coalescing
-        const point = gameState.board?.[pointIndex - 1];
-        const hasMyChecker = point?.checkers?.some(c => c.playerId === currentPlayerId) ?? false;
+    // Early exit checks
+    if (!isMyTurn || !gameState.remainingMoves || gameState.remainingMoves.length === 0 || currentPlayerId === null) {
+        if (selectedLocation) setSelectedLocation(null);
+        return;
+    }
 
-        if (selectedLocation) {
-            console.log(`>>> handlePointClick: Trying move from ${selectedLocation.type} ${selectedLocation.index} to ${pointIndex}. Potential targets: [${potentialMoveTargets.join(', ')}]`);
-            if (potentialMoveTargets.includes(pointIndex)) {
-                const move: MoveData = {
-                    startPointIndex: selectedLocation.type === 'bar' ? 0 : selectedLocation.index,
-                    endPointIndex: pointIndex
-                };
-                console.log(">>> Calling onMakeMove with:", move);
-                onMakeMove(move);
+    console.log(`>>> handlePointClick: Clicked point ${pointIndex}. MyTurn=${isMyTurn}. Selected=${JSON.stringify(selectedLocation)}`);
+
+
+    const point = gameState.board?.[pointIndex - 1];
+    const hasMyChecker = point?.checkers?.some(c => c.playerId === currentPlayerId) ?? false;
+
+    console.log(`>>> handlePointClick: hasMyChecker=${hasMyChecker}, pointIndex=${pointIndex}, selectedLocationindex=${selectedLocation?.index}`);
+
+    // 1. Handle double-click bear-off attempt
+    if (selectedLocation?.type === 'point' && selectedLocation.index === pointIndex) {
+
+        console.log(`>>> handlePointClick: Double-click detected on point ${pointIndex}. Attempting to bear off.`);
+
+        const isWhite = currentPlayerColor === PlayerColor.White;
+        const bearOffTarget = isWhite ? 25 : 0;
+        const homeStart = isWhite ? 19 : 1;
+        const homeEnd = isWhite ? 24 : 6;
+
+
+
+        if (pointIndex >= homeStart && pointIndex <= homeEnd) {
+            const exactDieNeeded = isWhite ? 25 - pointIndex : pointIndex;
+            const highestPoint = getFurthestCheckerPoint(gameState, currentPlayerId);
+            const hasExact = gameState.remainingMoves.includes(exactDieNeeded);
+            const hasHigher = gameState.remainingMoves.some(d => d > exactDieNeeded);
+            const hasLower = gameState.remainingMoves.some(d => d < exactDieNeeded);
+            //           const hasLower = gameState.remainingMoves.some(d => d < exactDieNeeded );
+
+            console.log(`>>> handlePointClick: hasExact=${hasExact}, hasHigher=${hasHigher}, hasLower=${hasLower}, highestPoint=${highestPoint}`);
+
+
+
+
+            // FIXED: Use 'currentPoint' to avoid variable shadowing
+            const noHigherCheckers = pointIndex === highestPoint || !gameState.board.some((p, i) => {
+                const currentPoint = i + 1; // Convert array index to pointIndex (1-24)
+                if (!isWhite) {
+                    return (
+                        currentPoint > pointIndex && // Correct comparison to outer pointIndex
+                        currentPoint >= homeStart && currentPoint <= homeEnd &&
+                        p.checkers.some(c => c.playerId === currentPlayerId)
+                    );
+                }
+                else {
+                    return (
+                        currentPoint < pointIndex && // Correct comparison to outer pointIndex
+                        currentPoint >= homeStart && currentPoint <= homeEnd &&
+                        p.checkers.some(c => c.playerId === currentPlayerId)
+                    );
+                }
+
+
+            });
+            if (!isWhite&&(hasExact || (noHigherCheckers && hasHigher))) {
+                console.log(`BEARING OFF from ${pointIndex}`);
+                onMakeMove({
+                    startPointIndex: pointIndex,
+                    endPointIndex: bearOffTarget
+                });
                 setSelectedLocation(null);
-            } else if (hasMyChecker && selectedLocation.type === 'point' && selectedLocation.index !== pointIndex) {
-                console.log(`>>> Switching selection from point ${selectedLocation.index} to ${pointIndex}`);
-                setSelectedLocation({ type: 'point', index: pointIndex });
-            }
-            else {
-                console.log(`>>> Deselecting. Clicked point ${pointIndex} is not a valid target or is same point.`);
-                setSelectedLocation(null);
-            }
-        } else {
-            // Safer access using optional chaining and nullish coalescing
-            const mustMoveFromBar = (gameState.bar?.[currentPlayerId]?.length ?? 0) > 0;
-            if (mustMoveFromBar) {
-                console.log(">>> Must move from Bar. Ignoring point click.");
                 return;
             }
 
-            if (hasMyChecker) {
-                console.log(`>>> Selecting point ${pointIndex}`);
-                setSelectedLocation({ type: 'point', index: pointIndex });
+            if (isWhite&&(hasExact || (noHigherCheckers && hasHigher))) {
+                console.log(`BEARING OFF from ${pointIndex}`);
+                onMakeMove({
+                    startPointIndex: pointIndex,
+                    endPointIndex: bearOffTarget
+                });
+                setSelectedLocation(null);
+                return;
             }
         }
-    };
+    }
+
+    // 2. Existing selection/movement logic
+    if (selectedLocation) {
+        console.log(`Trying move from ${selectedLocation.type} ${selectedLocation.index} to ${pointIndex}`);
+
+        if (potentialMoveTargets.includes(pointIndex)) {
+            onMakeMove({
+                startPointIndex: selectedLocation.type === 'bar' ? 0 : selectedLocation.index,
+                endPointIndex: pointIndex
+            });
+            setSelectedLocation(null);
+        } else if (hasMyChecker && selectedLocation.type === 'point') {
+            console.log(`Switching selection to point ${pointIndex}`);
+            setSelectedLocation({ type: 'point', index: pointIndex });
+        } else {
+            console.log("Deselecting");
+            setSelectedLocation(null);
+        }
+    } else {
+        const mustMoveFromBar = (gameState.bar?.[currentPlayerId]?.length ?? 0) > 0;
+        if (mustMoveFromBar) {
+            console.log("Must move from bar first");
+            return;
+        }
+
+        if (hasMyChecker) {
+            console.log(`Selecting point ${pointIndex}`);
+            setSelectedLocation({ type: 'point', index: pointIndex });
+        }
+    }
+};
+
 
     const handleBarClick = (playerId: PlayerId) => {
         console.log(`>>> handleBarClick: Clicked bar for player ${playerId}. MyTurn=${isMyTurn}. MyId=${currentPlayerId}`);
