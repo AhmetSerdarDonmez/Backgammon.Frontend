@@ -42,6 +42,7 @@ const getPointGridStyle = (pointIndex: number): React.CSSProperties => {
 };
 
 
+
 const GameBoard: React.FC<GameBoardProps> = ({
     gameState,
     onPointClick,
@@ -50,6 +51,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
     validMoveTargets
 }) => {
     // Ensure board is an array before mapping
+
+
     const board = Array.isArray(gameState.board) ? gameState.board : [];
     const barCheckers = gameState.bar || {}; // Default to empty object
     const borneOffCheckers = gameState.borneOff || {}; // Default to empty object

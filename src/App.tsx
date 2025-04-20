@@ -14,7 +14,7 @@ interface Notification {
     type: 'error' | 'info' | 'success' | 'warning';
 }
 
-const SIGNALR_HUB_URL = "http://10.16.4.28:5369/gamehub";
+const SIGNALR_HUB_URL = "http://192.168.1.101:5369/gamehub";
 
 function App() {
     const [connection, setConnection] = useState<HubConnection | null>(null);
