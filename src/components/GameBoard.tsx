@@ -58,11 +58,13 @@ const GameBoard: React.FC<GameBoardProps> = ({
     const borneOffCheckers = gameState.borneOff || {}; // Default to empty object
     const selectedBarPlayerId = selectedCheckerLocation?.type === 'bar' ? selectedCheckerLocation.index as PlayerId : null;
 
+  
+
     return (
         <div className="game-board-area">
             {/* Player 2 Bear Off Area (Left) */}
             <BearOffArea
-                playerCheckers={borneOffCheckers[PlayerId.Player2] || []}
+                playerCheckers={borneOffCheckers[PlayerId[PlayerId.Player2]] || []}
                 playerId={PlayerId.Player2}
                 playerColor={PlayerColor.Black} />
 
@@ -94,8 +96,8 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
                 {/* Bar Component - Positioned by its own CSS grid-column: 7 */}
                 <Bar
-                    player1Checkers={barCheckers[PlayerId.Player1] || []}
-                    player2Checkers={barCheckers[PlayerId.Player2] || []}
+                    player1Checkers={barCheckers[PlayerId[PlayerId.Player1]] || []}
+                    player2Checkers={barCheckers[PlayerId[PlayerId.Player2]] || []}
                     selectedBarPlayerId={selectedBarPlayerId}
                     onBarClick={onBarClick}
                 />
@@ -103,7 +105,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
 
             {/* Player 1 Bear Off Area (Right) */}
             <BearOffArea
-                playerCheckers={borneOffCheckers[PlayerId.Player1] || []}
+                playerCheckers={borneOffCheckers[PlayerId[PlayerId.Player1]] || []}
                 playerId={PlayerId.Player1}
                 playerColor={PlayerColor.White} />
 

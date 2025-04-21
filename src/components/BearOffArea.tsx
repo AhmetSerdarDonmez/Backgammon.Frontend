@@ -1,29 +1,39 @@
 import React from 'react';
-import { Checker } from '../models/Checker';
+import { Checker as CheckerModel } from '../models/Checker'; // Assuming your Checker model is named Checker
+import Checker from './Checker'; // Import the actual Checker component
 import { PlayerColor, PlayerId } from '../models/enums';
-import './BearOffArea.css';
+import './BearOffArea.css'; // Make sure your CSS is correctly styling checkers now
 
 interface BearOffAreaProps {
-    playerCheckers: Checker[];
+    playerCheckers: CheckerModel[];
     playerId: PlayerId;
     playerColor: PlayerColor;
 }
 
-const BearOffArea: React.FC<BearOffAreaProps> = ({ playerCheckers, playerId, playerColor }) => {
+const BearOffArea: React.FC<BearOffAreaProps> = ({ playerCheckers, playerId }) => {
     const count = playerCheckers.length;
+    const maxVisibleCheckers = 15; // You can adjust this limit if needed, up to 15
+
+    // Get the checkers to display (e.g., the top few or all if within limit)
+    const displayedCheckers = playerCheckers.slice(0, maxVisibleCheckers);
 
     return (
         <div className={`bear-off-area player-${playerId}`}>
-            <div className="bear-off-label">{playerColor} Bear Off</div>
+            {/* REMOVED: <div className="bear-off-label">{playerColor} Bear Off</div> */}
+
+            {/* Keep the bear-off-count div to display the count */}
             <div className="bear-off-count">{count} / 15</div>
-            {/* Optional: Visualize some checkers */}
+
+            {/* Visualize borne off checkers */}
             <div className="bear-off-visual">
-                {/* Show a few representative checkers */}
-                {count > 0 && <div className={`bear-off-checker ${playerColor}`}></div>}
-                {count > 3 && <div className={`bear-off-checker ${playerColor}`}></div>}
-                {count > 6 && <div className={`bear-off-checker ${playerColor}`}></div>}
-                {count > 9 && <div className={`bear-off-checker ${playerColor}`}></div>}
-                {count > 12 && <div className={`bear-off-checker ${playerColor}`}></div>}
+                {/* Render actual Checker components */}
+                {displayedCheckers.map((checker) => (
+                    // We don't need isSelected for borne off checkers
+                    <Checker key={checker.id} color={checker.color} isSelected={false} />
+                ))}
+                {/* Optional: Add a count for hidden checkers if maxVisibleCheckers is less than 15 */}
+                {count > maxVisibleCheckers && <div className="hidden-checker-count">+{count - maxVisibleCheckers}</div>}
+
             </div>
         </div>
     );

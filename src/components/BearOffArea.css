@@ -1,6 +1,6 @@
 .bear-off-area {
     width: 60px; /* Adjust width */
-    height: 520px; /* Match board height + padding */
+    height: 540px; /* Match board height + padding */
     background-color: #6a4d3b; /* Slightly different wood */
     border: 3px solid #4a2d1b;
     border-radius: 4px;
@@ -22,7 +22,7 @@
 .bear-off-count {
     font-size: 1.2em;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .bear-off-visual {

@@ -421,10 +421,7 @@ const handlePointClick = (pointIndex: number) => {
         <div className="game-container">
             {/* Main Game Area Layout */}
             <div className="game-board-area">
-                {/* Player 2 Panel - Safer access */}
-                {gameState.players?.[PlayerId.Player2] ? (
-                    <PlayerInfoPanel player={gameState.players[PlayerId.Player2]} isCurrentTurn={gameState.currentPlayerId === PlayerId.Player2} isClientPlayer={currentPlayerId === PlayerId.Player2} className="player-2-panel" />
-                ) : (<div className="player-info-panel placeholder player-2-panel">Waiting P2...</div>)}
+
 
                 {/* Game Board */}
                 <GameBoard
@@ -435,10 +432,7 @@ const handlePointClick = (pointIndex: number) => {
                     validMoveTargets={potentialMoveTargets}
                 />
 
-                {/* Player 1 Panel - Safer access */}
-                {gameState.players?.[PlayerId.Player1] ? (
-                    <PlayerInfoPanel player={gameState.players[PlayerId.Player1]} isCurrentTurn={gameState.currentPlayerId === PlayerId.Player1} isClientPlayer={currentPlayerId === PlayerId.Player1} className="player-1-panel" />
-                ) : (<div className="player-info-panel placeholder player-1-panel">Waiting P1...</div>)}
+
             </div>
 
             {/* Controls Section */}
