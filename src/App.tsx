@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // src/App.tsx
 import React, { useState, useEffect } from 'react';
@@ -143,6 +144,7 @@ function App() {
                         onRollDice={handleRollDice}
                         onMakeMove={handleMakeMove}
                         currentPlayerColor={playerInfo.color}
+                        onRestartGame={() => { null }}
 //                        triggerNotification={showNotification}
                     />
                 ) : (

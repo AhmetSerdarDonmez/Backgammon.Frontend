@@ -25,7 +25,7 @@
     width: 750px; /* Adjust total width as needed (6*point_width + bar_width + gaps) */
     background-color: #c8a078; /* Inner board area color */
     border: 10px solid #4a2d1b; /* Thick wooden border */
-    padding: 10px;
+    padding: 0px;
     position: relative; /* Needed if elements inside use absolute positioning */
     order: 2; /* Position board between bear-off areas in the flex layout */
     box-sizing: border-box;

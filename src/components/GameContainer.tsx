@@ -14,6 +14,8 @@ interface GameContainerProps {
     currentPlayerColor: PlayerColor | null; // This is the color of the player using this client instance
     onRollDice: () => void;
     onMakeMove: (move: MoveData) => void;
+    onRestartGame: () => void; // Add this line
+
 }
 
 // Helper function outside component: Check if player can potentially bear off
@@ -384,7 +386,12 @@ const handlePointClick = (pointIndex: number) => {
             setSelectedLocation({ type: 'point', index: pointIndex });
         }
     }
-};
+    };
+
+    const onRestartGame = () => {
+        console.log("Restarting game by refreshing the page...");
+        window.location.reload(); // This will refresh the browser tab
+    };
 
 
     const handleBarClick = (playerId: PlayerId) => {
@@ -432,33 +439,59 @@ const handlePointClick = (pointIndex: number) => {
                     validMoveTargets={potentialMoveTargets}
                 />
 
-
-            </div>
-
-            {/* Controls Section */}
-            <div className="controls">
-                {/* Status Display */}
-                <div>
-                    {gameState.phase === GamePhase.PlayerTurn && gameState.currentPlayerId && (
-                        <p>Turn: Player {gameState.currentPlayerId} {gameState.currentPlayerId === currentPlayerId ? "(You)" : ""}</p>
-                    )}
-                </div>
-
-                {/* Dice & Roll Button */}
-                {isMyTurn && (
+                {/* Controls Section */}
+                <div className="controls">
+                    {/* Status Display */}
                     <div>
-                        <h3>Your Turn</h3>
-                        {canRoll && <button onClick={onRollDice} disabled={!isMyTurn || !canRoll}>Roll Dice</button>}
-                        {gameState.currentDiceRoll && <p>Dice: {gameState.currentDiceRoll.join(', ')}</p>}
-                        {gameState.remainingMoves && gameState.remainingMoves.length > 0 && (
-                            <p>Moves Left: {gameState.remainingMoves.join(', ')}</p>
+                        {gameState.phase === GamePhase.PlayerTurn && gameState.currentPlayerId && (
+                            <p>Turn: Player {gameState.currentPlayerId} ({PlayerColor[gameState.players[`Player${gameState.currentPlayerId}`].color]}) {gameState.currentPlayerId === currentPlayerId ? "(You)" : ""}</p>
                         )}
                     </div>
-                )}
-                {!isMyTurn && gameState.phase === GamePhase.PlayerTurn && gameState.currentPlayerId && (
-                    <p>Waiting for Player {gameState.currentPlayerId}'s turn...</p>
-                )}
+
+                    {/* Dice & Roll Button */}
+                    {isMyTurn && gameState.phase !== GamePhase.GameOver && (
+                        <div>
+                            <h3>Your Turn</h3>
+                            {canRoll && <button onClick={onRollDice} disabled={!isMyTurn || !canRoll}>Roll Dice</button>}
+                            {gameState.currentDiceRoll && <p>Dice: {gameState.currentDiceRoll.join(', ')}</p>}
+                            {gameState.remainingMoves && gameState.remainingMoves.length > 0 && (
+                                <p>Moves Left: {gameState.remainingMoves.join(', ')}</p>
+                            )}
+                        </div>
+                    )}
+                    {!isMyTurn && gameState.phase === GamePhase.PlayerTurn && gameState.currentPlayerId && (
+                        <p>Waiting for Player {gameState.currentPlayerId}'s turn...</p>
+                    )}
+                    {!isMyTurn && gameState.phase === GamePhase.PlayerTurn && (
+                        gameState.currentDiceRoll && gameState.currentDiceRoll.length > 0 ? (
+                            <p>Opponent's Roll: {gameState.currentDiceRoll.join(', ')}</p>
+                        ) : (
+                            <p>Opponent didn't roll dice.</p>
+                        )
+                    )}
+
+                        {gameState.phase === GamePhase.GameOver && (
+                            <div style={{ color: 'white' }}>
+                                <h3>Game Over!</h3>
+                            {gameState.winnerId && gameState.players?.[PlayerId[gameState.winnerId]] && (
+                                <p>
+                                    Winner: Player {gameState.winnerId} ({PlayerColor[gameState.players[PlayerId[gameState.winnerId]].color]}) {/* Corrected access here too */}
+                                </p>
+                            )}
+                                {/* Add Restart Button */}
+                                <button onClick={onRestartGame}>Restart Game</button>
+                            </div>
+                        )}
+                  
+                     
+                            
+                        
+                </div>
+
+
             </div>
+
+            
         </div>
     );
 };
