@@ -437,7 +437,7 @@ const handlePointClick = (pointIndex: number) => {
                     onBarClick={handleBarClick}
                     selectedCheckerLocation={selectedLocation}
                     validMoveTargets={potentialMoveTargets}
-                    currentPlayerColor={currentPlayerColor}
+                        currentPlayerColor={currentPlayerColor}
 
                 />
 

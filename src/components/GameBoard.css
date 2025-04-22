@@ -41,20 +41,37 @@
     /* Ensure Bar.css does NOT set grid-column/row */
 }
 
+/* src/components/GameBoard.css */
 
-/* Add these rules */
+/* ... (existing styles for .game-board-area, .game-board etc.) ... */
+/* --- START: Perspective-based ordering rules --- */
+/* White's Perspective: White BearOff (P1) Left, Black BearOff (P2) Right */
 .game-board-area.perspective-white .bear-off-area.player-1 {
-    order: 3;
+    order: 1; /* White (Player 1) on the left */
+}
+
+.game-board-area.perspective-white .game-board {
+    order: 2; /* Board in the middle */
 }
 
 .game-board-area.perspective-white .bear-off-area.player-2 {
-    order: 1;
+    order: 3; /* Black (Player 2) on the right */
+}
+
+/* Black's Perspective (Default): Black BearOff (P2) Left, White BearOff (P1) Right */
+.game-board-area.perspective-black .bear-off-area.player-2 {
+    order: 1; /* Black (Player 2) on the left */
+}
+
+.game-board-area.perspective-black .game-board {
+    order: 2; /* Board in the middle */
 }
 
 .game-board-area.perspective-black .bear-off-area.player-1 {
-    order: 1;
+    order: 3; /* White (Player 1) on the right */
 }
 
-.game-board-area.perspective-black .bear-off-area.player-2 {
-    order: 3;
-}
+/* --- END: Perspective-based ordering rules --- */
+
+
+/* ... (rest of GameBoard.css, e.g., .bar-area-component positioning) ... */

@@ -26,34 +26,38 @@
 .bar-stack {
     width: 100%;
     display: flex;
-    align-items: center;
+    align-items: center; /* Center checkers horizontally */
     padding: 0 5px; /* Small horizontal padding */
     box-sizing: border-box;
     cursor: pointer;
     min-height: 50px; /* Ensure clickable area even when empty */
+    /* No flex-direction here anymore */
 }
 
-    .bar-stack.player1 { /* White - bottom */
-        flex-direction: column-reverse; /* Stack upwards */
+    /* These classes define the stacking direction */
+    .bar-stack.bottom {
+        flex-direction: column-reverse; /* Stack checkers upwards */
     }
 
-    .bar-stack.player2 { /* Black - top */
-        flex-direction: column; /* Stack downwards */
+    .bar-stack.top {
+        flex-direction: column; /* Stack checkers downwards */
     }
 
-    /* Reuse .checker styles defined earlier */
+    /* Style for all checkers within a bar stack */
     .bar-stack .checker {
-        /* Adjust margins if needed for bar stacking */
-        margin-bottom: -15px; /* Overlap more tightly */
+        /* Adjust margins for overlap - make sure this value works with your checker size */
+        margin-bottom: -7,5px; /* Overlap tightly */
     }
 
-    .bar-stack.player1 .checker:first-child {
-        margin-bottom: 0;
-    }
-    /* Reset last visual item */
-    .bar-stack.player2 .checker:first-child {
-        margin-top: 0;
-        margin-bottom: -15px;
+        /* Fix the margin on the checker closest to the BAR divider */
+        /* Due to flex-direction: column/column-reverse, this is always the *last* checker in the flex container */
+        .bar-stack .checker:last-child {
+            margin-bottom: 0; /* Remove the extra margin on the last checker in the stack */
+            /* You might need margin-top: 0 for the top stack depending on exact layout */
+        }
+    /* Specific adjustment for the very top checker of the top stack if needed */
+    .bar-stack.top .checker:first-child {
+        margin-top: 0; /* Ensure the top-most checker starts at the top edge */
     }
 
 
@@ -62,4 +66,17 @@
         position: relative; /* Position normally within the flex flow */
         margin-top: 5px;
         margin-bottom: 5px;
+    }
+
+    /* Optional: Adjust hidden count position relative to the stack */
+    .bar-stack.bottom .hidden-checker-count {
+        /* Position above the visible stack when stacking upwards */
+        margin-bottom: 0; /* Remove margin */
+        padding-bottom: 5px; /* Add padding instead */
+    }
+
+    .bar-stack.top .hidden-checker-count {
+        /* Position below the visible stack when stacking downwards */
+        margin-top: 0; /* Remove margin */
+        padding-top: 5px; /* Add padding instead */
     }

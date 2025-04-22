@@ -19,7 +19,6 @@ const BearOffArea: React.FC<BearOffAreaProps> = ({ playerCheckers, playerId }) =
 
     return (
         <div className={`bear-off-area player-${playerId}`}>
-            {/* REMOVED: <div className="bear-off-label">{playerColor} Bear Off</div> */}
 
             {/* Keep the bear-off-count div to display the count */}
             <div className="bear-off-count">{count} / 15</div>
@@ -29,6 +28,7 @@ const BearOffArea: React.FC<BearOffAreaProps> = ({ playerCheckers, playerId }) =
                 {/* Render actual Checker components */}
                 {displayedCheckers.map((checker) => (
                     // We don't need isSelected for borne off checkers
+                    
                     <Checker key={checker.id} color={checker.color} isSelected={false} />
                 ))}
                 {/* Optional: Add a count for hidden checkers if maxVisibleCheckers is less than 15 */}
