@@ -52,10 +52,4 @@
     }
 
 /* Position BearOffAreas next to the board using GameBoardArea's flex */
-.bear-off-area.player-1 { /* White - typically right side */
-    order: 3; /* Place after board+bar */
-}
 
-.bear-off-area.player-2 { /* Black - typically left side */
-    order: 1; /* Place before board+bar */
-}

@@ -42,15 +42,19 @@
 }
 
 
-/* ------------------------------------------------------------------ */
-/* !!! IMPORTANT: DELETE ALL OLD RULES BELOW THIS LINE !!!            */
-/* Remove any previous rules that targeted .point or .point-row       */
-/* using :nth-child or similar to set grid-column or grid-row.        */
-/* Point positioning is now handled by inline styles in GameBoard.tsx */
-/* ------------------------------------------------------------------ */
+/* Add these rules */
+.game-board-area.perspective-white .bear-off-area.player-1 {
+    order: 3;
+}
 
-/* Example of rules to DELETE if they exist:
-   .point-row.top-row > .point:nth-child(1) { grid-column: 6; grid-row: 1; }
-   .point-row.bottom-row > .point:nth-child(6) { grid-column: 13; grid-row: 2; }
-   etc...
-*/
+.game-board-area.perspective-white .bear-off-area.player-2 {
+    order: 1;
+}
+
+.game-board-area.perspective-black .bear-off-area.player-1 {
+    order: 1;
+}
+
+.game-board-area.perspective-black .bear-off-area.player-2 {
+    order: 3;
+}

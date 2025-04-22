@@ -13,32 +13,38 @@ interface GameBoardProps {
     onBarClick: (playerId: PlayerId) => void;
     selectedCheckerLocation: { type: 'point' | 'bar', index: number } | null;
     validMoveTargets: number[];
+    currentPlayerColor: PlayerColor | null; // <<< Added this prop
 }
 
-// Helper function to get grid style for a point index (Verified logic)
-const getPointGridStyle = (pointIndex: number): React.CSSProperties => {
+// Helper function to get grid style for a point index (Updated logic)
+const getPointGridStyle = (
+    pointIndex: number,
+    currentPlayerColor: PlayerColor | null // <<< Added parameter
+): React.CSSProperties => {
     let gridColumn = 0;
     let gridRow = 0;
 
-    if (pointIndex >= 1 && pointIndex <= 6) { // Bottom Right Quadrant (Points 1-6)
+    // Calculate base grid position (assuming Black's perspective initially)
+    if (pointIndex >= 1 && pointIndex <= 6) {
         gridRow = 2;
-        gridColumn = 13 - pointIndex + 1; // Maps 1->13, 6->8
-    } else if (pointIndex >= 7 && pointIndex <= 12) { // Bottom Left Quadrant (Points 7-12)
+        gridColumn = 13 - pointIndex + 1;
+    } else if (pointIndex >= 7 && pointIndex <= 12) {
         gridRow = 2;
-        gridColumn = 12 - pointIndex + 1; // Maps 7->6, 12->1
-    } else if (pointIndex >= 13 && pointIndex <= 18) { // Top Left Quadrant (Points 13-18)
+        gridColumn = 12 - pointIndex + 1;
+    } else if (pointIndex >= 13 && pointIndex <= 18) {
         gridRow = 1;
-        gridColumn = pointIndex - 12; // Maps 13->1, 18->6
-    } else if (pointIndex >= 19 && pointIndex <= 24) { // Top Right Quadrant (Points 19-24)
+        gridColumn = pointIndex - 12;
+    } else if (pointIndex >= 19 && pointIndex <= 24) {
         gridRow = 1;
-        gridColumn = pointIndex - 12 + 1; // Maps 19->8, 24->13
+        gridColumn = pointIndex - 12 + 1;
     }
 
-    // Return object only if calculation is valid
-    if (gridColumn > 0 && gridRow > 0) {
-        return { gridColumn, gridRow };
+    // Mirror rows for white perspective <<< Added perspective logic
+    if (currentPlayerColor === PlayerColor.White) {
+        gridRow = gridRow === 1 ? 2 : 1;
     }
-    return {}; // Return empty object otherwise
+
+    return { gridColumn, gridRow };
 };
 
 
@@ -48,21 +54,22 @@ const GameBoard: React.FC<GameBoardProps> = ({
     onPointClick,
     onBarClick,
     selectedCheckerLocation,
-    validMoveTargets
+    validMoveTargets,
+    currentPlayerColor // <<< Destructured the new prop
 }) => {
     // Ensure board is an array before mapping
-
-
     const board = Array.isArray(gameState.board) ? gameState.board : [];
     const barCheckers = gameState.bar || {}; // Default to empty object
     const borneOffCheckers = gameState.borneOff || {}; // Default to empty object
     const selectedBarPlayerId = selectedCheckerLocation?.type === 'bar' ? selectedCheckerLocation.index as PlayerId : null;
 
-  
+    // <<< Added dynamic perspective class
+    const perspectiveClass = currentPlayerColor === PlayerColor.White ? 'white' : 'black';
 
     return (
-        <div className="game-board-area">
-            {/* Player 2 Bear Off Area (Left) */}
+        // <<< Applied dynamic class here
+        <div className={`game-board-area perspective-${perspectiveClass}`}>
+            {/* Player 2 Bear Off Area (Rendered based on perspective in CSS potentially) */}
             <BearOffArea
                 playerCheckers={borneOffCheckers[PlayerId[PlayerId.Player2]] || []}
                 playerId={PlayerId.Player2}
@@ -77,15 +84,19 @@ const GameBoard: React.FC<GameBoardProps> = ({
                         console.error("Invalid point data encountered:", point);
                         return null; // Skip rendering invalid point data
                     }
-                    const isTopRow = point.pointIndex >= 13;
+
+                    // <<< Calculate gridStyle using the updated function and prop
+                    const gridStyle = getPointGridStyle(point.pointIndex, currentPlayerColor);
+                    // <<< Determine isTopRow based on the *calculated* gridRow
+                    const isTopRow = gridStyle.gridRow === 1;
                     const isSelected = selectedCheckerLocation?.type === 'point' && selectedCheckerLocation.index === point.pointIndex;
-                    const gridStyle = getPointGridStyle(point.pointIndex);
+
 
                     return (
                         <Point
                             key={point.pointIndex}
                             pointData={point}
-                            isTopRow={isTopRow}
+                            isTopRow={isTopRow} // <<< Use calculated isTopRow
                             onClick={onPointClick}
                             isValidMoveTarget={validMoveTargets.includes(point.pointIndex)}
                             isSelected={isSelected}
@@ -103,7 +114,7 @@ const GameBoard: React.FC<GameBoardProps> = ({
                 />
             </div>
 
-            {/* Player 1 Bear Off Area (Right) */}
+            {/* Player 1 Bear Off Area (Rendered based on perspective in CSS potentially) */}
             <BearOffArea
                 playerCheckers={borneOffCheckers[PlayerId[PlayerId.Player1]] || []}
                 playerId={PlayerId.Player1}
