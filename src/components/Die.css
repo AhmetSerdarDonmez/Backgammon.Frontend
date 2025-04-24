@@ -1,0 +1,29 @@
+/* src/components/Die.css */
+.die {
+    width: 40px; /* Adjust size as needed */
+    height: 40px;
+    margin: 5px; /* Space between dice */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #555; /* Optional border */
+    border-radius: 5px; /* Slightly rounded corners */
+    background-color: #fff; /* White background for the die cube */
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    overflow: hidden; /* Ensure image stays within bounds */
+}
+
+    .die img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Ensure the image scales correctly */
+    }
+
+    /* Optional: Add an animation for the rolling state */
+    .die.rolling {
+        /* REMOVED: animation: rollAnimation 0.5s infinite linear; */
+        /* The "rolling" effect now comes from rapid image changes driven by JS/React state */
+        /* You could add other visual cues here if desired, like a subtle glow or scale */
+        /* box-shadow: 0 0 8px 2px rgba(255, 215, 0, 0.6); */ /* Example: subtle glow */
+    }

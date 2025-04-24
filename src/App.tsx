@@ -9,6 +9,8 @@ import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signal
 import { GameState, createInitialGameState } from './models/GameState';
 import { MoveData } from './models/MoveData';
 import { PlayerColor, PlayerId, GamePhase } from './models/enums';
+import FullscreenWrapper from './components/FullscreenWrapper';
+
 
 interface Notification {
     message: string;
@@ -138,19 +140,21 @@ function App() {
 
             <main>
                 {gameState.phase !== GamePhase.WaitingForPlayers ? (
-                    <GameContainer
-                        gameState={gameState}
-                        currentPlayerId={playerInfo.id}
-                        onRollDice={handleRollDice}
-                        onMakeMove={handleMakeMove}
-                        currentPlayerColor={playerInfo.color}
-                        onRestartGame={() => { null }}
-//                        triggerNotification={showNotification}
-                    />
+                    <FullscreenWrapper zoomFactor={0.6}>
+                        <GameContainer
+                            gameState={gameState}
+                            currentPlayerId={playerInfo.id}
+                            onRollDice={handleRollDice}
+                            onMakeMove={handleMakeMove}
+                            currentPlayerColor={playerInfo.color}
+                            onRestartGame={() => { null }}
+                        />
+                    </FullscreenWrapper>
                 ) : (
                     <p>Waiting for players to connect...</p>
                 )}
             </main>
+
         </div>
     );
 }

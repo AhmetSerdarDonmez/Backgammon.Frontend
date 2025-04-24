@@ -49,4 +49,18 @@ button {
     cursor: pointer;
 }
 
+.fullscreen-container {
+    /* Flex-düzen, içerik ortalanmýþ */
+    flex-direction: column;
+}
+
+.fs-toggle-btn {
+    background: rgba(255,255,255,0.9);
+    border: none;
+    border-radius: 4px;
+}
+
+
+
+
 /* Add styles for board, points, checkers later */
