@@ -18,6 +18,7 @@ interface GameContainerProps {
     onMakeMove: (move: MoveData) => void;
     onRestartGame: () => void; // Add this line
 
+
 }
 
 // Helper function outside component: Check if player can potentially bear off
@@ -142,6 +143,9 @@ const GameContainer: React.FC<GameContainerProps> = ({
 
 
     const [previousRemainingMoves, setPreviousRemainingMoves] = useState<number[] | null>(null);
+
+    const [showNoMoveDice, setShowNoMoveDice] = useState<boolean>(false);
+
 
 
 
@@ -320,6 +324,23 @@ const GameContainer: React.FC<GameContainerProps> = ({
     }, [isMyTurn, gameState.remainingMoves, previousRemainingMoves]);
 
 
+    useEffect(() => {
+        if (isAnimatingRoll && gameState.currentDiceRoll) {
+            const timeoutId = setTimeout(() => {
+                setIsAnimatingRoll(false);
+
+                // Check if there are no valid moves
+                if (!gameState.remainingMoves || gameState.remainingMoves.length === 0) {
+                    setShowNoMoveDice(true); // Show the dice for 1 second
+                    setTimeout(() => {
+                        setShowNoMoveDice(false); // Hide the dice after 1 second
+                    }, 1000); // 1 second delay
+                }
+            }, 1000); // Rolling animation duration
+
+            return () => clearTimeout(timeoutId);
+        }
+    }, [isAnimatingRoll, gameState.currentDiceRoll, gameState.remainingMoves]);
 
 
     // New useEffect for dice animation
@@ -606,10 +627,19 @@ const handlePointClick = (pointIndex: number) => {
 
                             {/* Display Dice Components */}
                             <div className="dice-display" style={{ display: 'flex', justifyContent: 'center' }}>
-                                {/* Render animating dice while rolling, otherwise render the final roll */}
-                                {(isAnimatingRoll ? animatingDiceValues : gameState.currentDiceRoll)?.map((dieValue, index) => (
-                                    <Die key={index} value={dieValue} isRolling={isAnimatingRoll} />
-                                ))}
+                                {isAnimatingRoll ? (
+                                    animatingDiceValues.map((dieValue, index) => (
+                                        <Die key={index} value={dieValue} isRolling={true} />
+                                    ))
+                                ) : showNoMoveDice ? (
+                                    gameState.currentDiceRoll?.map((dieValue, index) => (
+                                        <Die key={index} value={dieValue} />
+                                    ))
+                                ) : (
+                                    gameState.currentDiceRoll?.map((dieValue, index) => (
+                                        <Die key={index} value={dieValue} />
+                                    ))
+                                )}
                             </div>
 
                             {/* Optional: Display remaining moves as die images */}
