@@ -135,8 +135,14 @@ const GameContainer: React.FC<GameContainerProps> = ({
 
     // State to control the animation explicitly
     const [isAnimatingRoll, setIsAnimatingRoll] = useState<boolean>(false);
+    const [isAnimatingRollForOpponent, setIsAnimatingRollForOpponent] = useState<boolean>(false);
+
     // State to hold the values shown DURING animation
     const [animatingDiceValues, setAnimatingDiceValues] = useState<number[]>([]);
+
+
+    const [previousRemainingMoves, setPreviousRemainingMoves] = useState<number[] | null>(null);
+
 
 
     const isMyTurn = gameState.currentPlayerId === currentPlayerId;
@@ -275,11 +281,52 @@ const GameContainer: React.FC<GameContainerProps> = ({
     }, [selectedLocation, gameState.remainingMoves, isMyTurn, calculatePotentialTargets, myColor, potentialMoveTargets]); // Include potentialMoveTargets state itself
 
 
+    useEffect(() => {
+        if (!isMyTurn && gameState.remainingMoves) {
+            const currentMoves = gameState.remainingMoves;
+            const previousMoves = previousRemainingMoves;
+
+            // Detect a new roll (when remainingMoves increases in size)
+            if (
+                (!previousMoves || previousMoves.length <= 1) &&
+                (currentMoves.length === 2 || currentMoves.length === 4)
+            ) {
+                // Start the opponent's dice animation
+                setIsAnimatingRollForOpponent(true);
+
+                // Generate random dice values during the animation
+                const intervalId = setInterval(() => {
+                    setAnimatingDiceValues([
+                        Math.floor(Math.random() * 6) + 1,
+                        Math.floor(Math.random() * 6) + 1,
+                    ]);
+                }, 75);
+
+                // Stop the animation after 1 second and show the actual dice values
+                const timeoutId = setTimeout(() => {
+                    clearInterval(intervalId);
+                    setIsAnimatingRollForOpponent(false);
+                }, 1000); // 1 second animation duration
+
+                return () => {
+                    clearInterval(intervalId);
+                    clearTimeout(timeoutId);
+                };
+            }
+
+            // Update the previousRemainingMoves state
+            setPreviousRemainingMoves([...currentMoves]);
+        }
+    }, [isMyTurn, gameState.remainingMoves, previousRemainingMoves]);
+
+
+
+
     // New useEffect for dice animation
     useEffect(() => {
         let intervalId: NodeJS.Timeout | null = null;
         let timeoutId: NodeJS.Timeout | null = null;
-        const MIN_ANIMATION_DURATION = 2000; // 2 seconds
+        const MIN_ANIMATION_DURATION = 1000; // 1 seconds
 
         console.log(">>> Animation useEffect: isAnimatingRoll:", isAnimatingRoll, "CurrentDiceRoll:", gameState.currentDiceRoll);
 
@@ -345,6 +392,7 @@ const GameContainer: React.FC<GameContainerProps> = ({
         if (canRoll && !isAnimatingRoll) { // Only roll if allowed and not already animating
             console.log(">>> canRoll is true and not animating. Setting isAnimatingRoll(true) and calling onRollDice prop.");
             setIsAnimatingRoll(true); // Start the animation state
+
             // Optionally set initial random values immediately for visual feedback
             setAnimatingDiceValues([
                 Math.floor(Math.random() * 6) + 1,
@@ -583,12 +631,21 @@ const handlePointClick = (pointIndex: number) => {
                     {/* Display Opponent's Dice */}
                     {!isMyTurn && gameState.phase === GamePhase.PlayerTurn && (
                         <div className="opponent-dice-display" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                            {gameState.currentDiceRoll && gameState.currentDiceRoll.length > 0 ? (
+                            {isAnimatingRollForOpponent ? (
                                 <>
-                                    <p>Opponent's dice's:</p>
+                                    <p>Opponent is rolling...</p>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        {animatingDiceValues.map((dieValue, index) => (
+                                            <Die key={index} value={dieValue} isRolling={true} />
+                                        ))}
+                                    </div>
+                                </>
+                            ) : gameState.currentDiceRoll && gameState.currentDiceRoll.length > 0 ? (
+                                <>
+                                    <p>Opponent's Dice:</p>
                                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                                         {gameState.currentDiceRoll.map((dieValue, index) => (
-                                            <Die key={index} value={dieValue} /> 
+                                            <Die key={index} value={dieValue} />
                                         ))}
                                     </div>
                                 </>
@@ -597,6 +654,7 @@ const handlePointClick = (pointIndex: number) => {
                             )}
                         </div>
                     )}
+
 
                         {gameState.phase === GamePhase.GameOver && (
                             <div style={{ color: 'white' }}>
